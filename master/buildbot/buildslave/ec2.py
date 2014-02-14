@@ -375,14 +375,17 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
                          self.instance.id))
             self.instance.update()
         if self.instance.state == RUNNING:
-            self.output = self.instance.get_console_output()
+            try:
+                self.output = self.instance.get_console_output()
+            except Exception:
+                pass
             minutes = duration // 60
             seconds = duration % 60
             log.msg('%s %s instance %s started on %s '
                     'in about %d minutes %d seconds (%s)' %
                     (self.__class__.__name__, self.slavename,
                      self.instance.id, self.dns, minutes, seconds,
-                     self.output.output))
+                     self.output.output if self.output is not None else None))
             if self.elastic_ip is not None:
                 self.instance.use_ip(self.elastic_ip)
             start_time = '%02d:%02d:%02d' % (minutes // 60, minutes % 60, seconds)
