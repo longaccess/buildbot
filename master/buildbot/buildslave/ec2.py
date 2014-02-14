@@ -107,15 +107,12 @@ class EC2LatentBuildSlave(AbstractLatentBuildSlave):
             if aws_id_file_path is None:
                 home = os.environ['HOME']
                 aws_id_file_path = os.path.join(home, '.ec2', 'aws_id')
-            if not os.path.exists(aws_id_file_path):
-                raise ValueError(
-                    "Please supply your AWS access key identifier and secret "
-                    "access key identifier either when instantiating this %s "
-                    "or in the %s file (on two lines).\n" %
-                    (self.__class__.__name__, aws_id_file_path))
-            with open(aws_id_file_path, 'r') as aws_file:
-                identifier = aws_file.readline().strip()
-                secret_identifier = aws_file.readline().strip()
+            if os.path.exists(aws_id_file_path):
+                with open(aws_id_file_path, 'r') as aws_file:
+                    identifier = aws_file.readline().strip()
+                    secret_identifier = aws_file.readline().strip()
+            else:
+                log.msg('no AWS identifier was provided and none available')
         else:
             assert aws_id_file_path is None, \
                 'if you supply the identifier and secret_identifier, ' \
